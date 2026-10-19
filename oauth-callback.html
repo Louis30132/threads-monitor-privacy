@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THREADS小蟲｜OAuth 授權回傳</title>
+<style>body{max-width:680px;margin:70px auto;padding:0 24px;font:18px/1.8 system-ui,"Microsoft JhengHei",sans-serif;color:#203047}button{border:0;border-radius:8px;background:#16645c;color:white;padding:14px 22px;font:inherit;cursor:pointer}textarea{width:100%;height:90px;box-sizing:border-box}small{color:#536477}</style>
+<h1>THREADS小蟲｜授權回傳</h1>
+<p id="status">尚未收到授權結果。請先在電腦執行 oauth-login.cmd，從該程序開始登入。</p>
+<div id="success" hidden><p>請按下方按鈕，再回到電腦的 OAuth 登入視窗貼上，由本機程式驗證並交換權杖。</p><button id="copy">複製授權結果</button><p id="notice"></p><details><summary>無法複製時，手動選取結果</summary><textarea id="result" readonly aria-label="授權結果"></textarea></details><p><small>這是短期授權碼，尚不是存取權杖。請勿公開、截圖或放入操作錄影。此頁不呼叫權杖交換 API，也不將結果另送至其他服務；GitHub 仍可能保有網站請求紀錄。</small></p></div>
+<script>
+const original = new URL(location.href);
+const params = original.searchParams;
+history.replaceState(null, '', location.pathname);
+if (params.get('error')) {
+  document.getElementById('status').textContent = '授權已取消或未完成。請回本機登入視窗重新開始。';
+} else if (params.get('code') && params.get('state')) {
+  original.hash = '';
+  const result = original.href;
+  document.getElementById('status').textContent = '已收到授權回傳，尚待本機程式驗證。';
+  document.getElementById('success').hidden = false;
+  document.getElementById('result').value = result;
+  document.getElementById('copy').onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      document.getElementById('notice').textContent = '已複製，請切回本機登入視窗貼上。';
+    } catch {
+      document.getElementById('notice').textContent = '瀏覽器未允許複製，請展開下方欄位手動複製。';
+    }
+  };
+}
+</script></html>
